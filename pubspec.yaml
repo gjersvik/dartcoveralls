@@ -2,5 +2,7 @@ name: dartcoveralls
 version: 0.0.1
 author: Ole Martin Gjersvik <olem@olem.org>
 description: Tool to upload dart coverage information to coverall.io
+dependencies:
+  path: any
 dev_dependencies:
   coverage: any

@@ -1,10 +1,12 @@
 library dartcoveralls;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:path/path.dart' as path;
+import 'package:http/http.dart';
 
 class Coveralls{
   String root = '.';
@@ -66,6 +68,12 @@ class Coveralls{
       
       return data;
     });
+  }
+  
+  Future upload(Map payload){
+    var uri = Uri.parse("https://coveralls.io/api/v1/jobs");
+    var body = {"json": JSON.encode(payload)};
+    return post(uri,body: body);
   }
 
   List<int> _toCoverallLineFormat(List cov){

@@ -3,6 +3,10 @@ part of dartcoveralls;
 class Coveralls{
   String root = '.';
   
+  Coveralls(this.root){
+    root = path.normalize(path.absolute(root));
+  }
+  
   Map<String,List<int>> coverage = {};
   
   addCoverage(Map data){

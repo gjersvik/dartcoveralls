@@ -7,10 +7,10 @@ import 'package:path/path.dart' as path;
 class Coveralls{
   String root = '.';
   
-  Map coverage = {};
+  Map<String,List<int>> coverage = {};
   
   addCoverage(Map data){
-    var newCoverage = {};
+    Map<String,List<int>> newCoverage = {};
     data['coverage'].forEach((Map file){
       String source = file['source'];
       if(!source.startsWith('file://')){
@@ -22,7 +22,27 @@ class Coveralls{
       }
     });
     
-    coverage.addAll(newCoverage);
+    newCoverage.forEach((path,hits){
+      if(coverage.containsKey(path)){
+        var hits2 = coverage[path];
+        var length = max(hits.length,hits2.length);
+        hits.length = length;
+        hits2.length = length;
+        
+        for(int i = 0; i < length; i+=1){
+          if(hits[i] == null){
+            continue;
+          }
+          if(hits2[i] == null){
+            hits2[i] = hits[i];
+          }else{
+            hits2[i] += hits[i];
+          }
+        }
+      }else{
+        coverage[path] = hits;
+      }
+    });
   }
 
   List<int> _toCoverallLineFormat(List cov){

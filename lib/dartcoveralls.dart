@@ -1,5 +1,7 @@
 library dartcoveralls;
 
+import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:path/path.dart' as path;
@@ -42,6 +44,27 @@ class Coveralls{
       }else{
         coverage[path] = hits;
       }
+    });
+  }
+  
+  Future<Map> getPayload(repoToken){
+    var data = {"repo_token": repoToken,
+                "source_files": []
+    };
+    
+    var files = coverage.keys.map((file) => new File(path.join(root,file)));
+    var content = files.map((File f) =>f.readAsLines());
+    return Future.wait(content).then((list){
+      var source = new Map.fromIterables(coverage.keys,list.map((c) => c.join("\n")));
+      coverage.forEach((key,hits){
+        data["source_files"].add({
+          "name" : key,
+          "source" : source[key],
+          "coverage": hits
+        });
+      });
+      
+      return data;
     });
   }
 

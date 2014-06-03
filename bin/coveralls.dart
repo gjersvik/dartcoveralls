@@ -8,5 +8,5 @@ main(){
   coveralls.root = '..';
   var file = new File('../cov.json');
   coveralls.addCoverage(JSON.decode(file.readAsStringSync()));
-  print(coveralls.coverage);
+  coveralls.getPayload('2V6WR3QvcnklMj9bxd6AHYFkZgpmPGynD').then(print);
 }

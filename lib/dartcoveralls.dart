@@ -7,23 +7,24 @@ import 'package:path/path.dart' as path;
 class Coveralls{
   String root = '.';
   
-  Map _coverage = {};
+  Map coverage = {};
   
   addCoverage(Map data){
-    var coverage = data['coverage'];
-    coverage.forEach((Map file){
+    var newCoverage = {};
+    data['coverage'].forEach((Map file){
       String source = file['source'];
       if(!source.startsWith('file://')){
         return;
       }
       source = path.fromUri(source);
       if(path.isWithin(root,source)){
-        print(path.relative(source,from: root));
-        print(_toCoverallLineFormat(file['hits']));
+        newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file['hits']);
       }
     });
+    
+    coverage.addAll(newCoverage);
   }
-  
+
   List<int> _toCoverallLineFormat(List cov){
     List out = [];
     for(int i = 0; i < cov.length; i += 2){

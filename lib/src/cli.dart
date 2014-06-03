@@ -4,9 +4,9 @@ cli(List<String> args){
   var parser = getArgs();
   var result = parser.parse(args);
   
-  var coveralls = new Coveralls(result['projectDir']);
+  var coveralls = new Coveralls(result["root"]);
   
-  (result['files'] as Iterable).forEach((filename){
+  (result["files"] as Iterable).forEach((filename){
     var file = new File(path.join(coveralls.root, filename));
     coveralls.addCoverage(JSON.decode(file.readAsStringSync()));
   });
@@ -22,7 +22,10 @@ cli(List<String> args){
 
 ArgParser getArgs(){
   var args = new ArgParser();
-  args.addOption("files",abbr: "f", allowMultiple:true);
-  args.addOption("projectDir",abbr: "p",  defaultsTo:".");
+  args.addOption("files", abbr: "f", allowMultiple:true);
+  args.addOption("root", abbr: "r",  defaultsTo:".");
+  args.addOption("repo_token", abbr: "t");
+  args.addOption("service_name", abbr: "n");
+  args.addOption("service_job_id", abbr: "i");
   return args;
 }

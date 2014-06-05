@@ -1,11 +1,19 @@
 part of dartcoveralls;
 
 class Coveralls{
-  String root = '.';
+  String _root = '.';
   
-  Coveralls(this.root){
-    root = path.normalize(path.absolute(root));
+  Coveralls({String root}){
+    if(root != null){
+      this.root = root;
+    }
   }
+  
+  String get root => _root;
+  set root(String p){
+    _root = path.normalize(path.absolute(p));
+  }
+  
   
   Map<String,List<int>> coverage = {};
   

@@ -4,7 +4,7 @@ cli(List<String> args){
   var parser = getArgs();
   var result = parser.parse(args);
   
-  var coveralls = new Coveralls(result["root"]);
+  var coveralls = new Coveralls(root: result["root"]);
   
   (result["files"] as Iterable).forEach((filename){
     var file = new File(path.join(coveralls.root, filename));

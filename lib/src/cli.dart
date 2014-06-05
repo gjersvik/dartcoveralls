@@ -24,7 +24,7 @@ ArgParser getArgs(){
   args.addOption("files", abbr: "f", allowMultiple:true);
   args.addOption("root", abbr: "r",  defaultsTo:".");
   args.addOption("repo_token", abbr: "t");
-  args.addOption("service_name", abbr: "n");
-  args.addOption("service_job_id", abbr: "i");
+//  args.addOption("service_name", abbr: "n");
+//  args.addOption("service_job_id", abbr: "i");
   return args;
 }

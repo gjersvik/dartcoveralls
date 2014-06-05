@@ -8,3 +8,4 @@ dependencies:
   path: any
 dev_dependencies:
   coverage: any
+  unittest: any

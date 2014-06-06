@@ -1,21 +1,22 @@
 part of dartcoveralls;
 
 class Coveralls{
-  String _root = '.';
-  String projectName = 'dartcoveralls';
+  final String repoToken;
+  final String serviceToken;
+  final String serviceJobId;
   
-  Coveralls({String root}){
-    if(root != null){
-      this.root = root;
-    }
+  String _root = '.';
+  String _projectName = '';
+  
+  Coveralls(String root,{this.repoToken:'',
+                         this.serviceToken:'',
+                         this.serviceJobId:''}){
+    _root = path.normalize(path.absolute(root));
     var pubspec = new File(path.join(root,'pubspec.yaml')).readAsStringSync();
-    projectName = loadYaml(pubspec)['name'];
+    _projectName = loadYaml(pubspec)['name'];
   }
   
   String get root => _root;
-  set root(String p){
-    _root = path.normalize(path.absolute(p));
-  }
   
   Map<String,List<int>> coverage = {};
   
@@ -29,8 +30,8 @@ class Coveralls{
           newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
         }
       }
-      if(source.startsWith("package:$projectName")){
-        source = "lib" + source.replaceFirst("package:$projectName", "");
+      if(source.startsWith("package:$_projectName")){
+        source = "lib" + source.replaceFirst("package:$_projectName", "");
         newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
       }
     });
@@ -58,7 +59,7 @@ class Coveralls{
     });
   }
   
-  Future<Map> getPayload(repoToken){
+  Future<Map> getPayload(){
     var data = {"repo_token": repoToken,
                 "source_files": []
     };

@@ -20,6 +20,12 @@ class Coveralls{
   
   Map<String,List<int>> coverage = {};
   
+  Future addFile(file){
+    return new File(path.join(root, file)).readAsString()
+      .then(JSON.decode)
+      .then(addCoverage);
+  }
+  
   addCoverage(Map data){
     Map<String,List<int>> newCoverage = {};
     data['coverage'].forEach((Map file){

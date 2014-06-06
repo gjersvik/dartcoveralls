@@ -10,18 +10,15 @@ cli(List<String> args){
     serviceJobId: result["service_job_id"]
   );
   
-  (result["files"] as Iterable).forEach((filename){
-    var file = new File(path.join(coveralls.root, filename));
-    coveralls.addCoverage(JSON.decode(file.readAsStringSync()));
-  });
-  
-  print(coveralls.coverage);
-  
-  coveralls.getPayload()
-  .then(coveralls.upload)
-  .then((Response response) {
-    print("${response.statusCode} ${response.reasonPhrase}");
-    print(response.body);
+  Future.wait((result["files"] as Iterable).map(coveralls.addFile)).then((_){
+    print(coveralls.coverage);
+      
+    coveralls.getPayload()
+    .then(coveralls.upload)
+    .then((Response response) {
+      print("${response.statusCode} ${response.reasonPhrase}");
+      print(response.body);
+    });
   });
 }
 

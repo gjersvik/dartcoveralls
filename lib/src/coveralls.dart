@@ -2,12 +2,14 @@ part of dartcoveralls;
 
 class Coveralls{
   String _root = '.';
-  String _projectName = 'dartcoveralls';
+  String projectName = 'dartcoveralls';
   
   Coveralls({String root}){
     if(root != null){
       this.root = root;
     }
+    var pubspec = new File(path.join(root,'pubspec.yaml')).readAsStringSync();
+    projectName = loadYaml(pubspec)['name'];
   }
   
   String get root => _root;
@@ -27,8 +29,8 @@ class Coveralls{
           newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
         }
       }
-      if(source.startsWith("package:$_projectName")){
-        source = "lib" + source.replaceFirst("package:$_projectName", "");
+      if(source.startsWith("package:$projectName")){
+        source = "lib" + source.replaceFirst("package:$projectName", "");
         newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
       }
     });

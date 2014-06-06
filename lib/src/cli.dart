@@ -5,6 +5,7 @@ cli(List<String> args){
   var result = parser.parse(args);
   
   var coveralls = new Coveralls(root: result["root"]);
+  print(coveralls.projectName);
   
   (result["files"] as Iterable).forEach((filename){
     var file = new File(path.join(coveralls.root, filename));

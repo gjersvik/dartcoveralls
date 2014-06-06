@@ -13,8 +13,7 @@ cli(List<String> args){
   Future.wait((result["files"] as Iterable).map(coveralls.addFile)).then((_){
     print(coveralls.coverage);
       
-    coveralls.getPayload()
-    .then(coveralls.upload)
+    coveralls.upload()
     .then((Response response) {
       print("${response.statusCode} ${response.reasonPhrase}");
       print(response.body);

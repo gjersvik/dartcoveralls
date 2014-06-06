@@ -23,10 +23,10 @@ class Coveralls{
   Future addFile(file){
     return new File(path.join(root, file)).readAsString()
       .then(JSON.decode)
-      .then(addCoverage);
+      .then(addData);
   }
   
-  addCoverage(Map data){
+  addData(Map data){
     Map<String,List<int>> newCoverage = {};
     data['coverage'].forEach((Map file){
       String source = file['source'];
@@ -86,10 +86,12 @@ class Coveralls{
     });
   }
   
-  Future upload(Map payload){
-    var uri = Uri.parse("https://coveralls.io/api/v1/jobs");
-    var body = {"json": JSON.encode(payload)};
-    return post(uri,body: body);
+  Future upload(){
+    return getPayload().then((payload){
+      var uri = Uri.parse("https://coveralls.io/api/v1/jobs");
+      var body = {"json": JSON.encode(payload)};
+      return post(uri,body: body);
+    });
   }
 
   List<int> _toCoverallLineFormat(List cov){

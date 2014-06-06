@@ -2,6 +2,7 @@ part of dartcoveralls;
 
 class Coveralls{
   String _root = '.';
+  String _projectName = 'dartcoveralls';
   
   Coveralls({String root}){
     if(root != null){
@@ -14,19 +15,21 @@ class Coveralls{
     _root = path.normalize(path.absolute(p));
   }
   
-  
   Map<String,List<int>> coverage = {};
   
   addCoverage(Map data){
     Map<String,List<int>> newCoverage = {};
     data['coverage'].forEach((Map file){
       String source = file['source'];
-      if(!source.startsWith('file://')){
-        return;
+      if(source.startsWith('file://')){
+        source = path.fromUri(source);
+        if(path.isWithin(root,source)){
+          newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
+        }
       }
-      source = path.fromUri(source);
-      if(path.isWithin(root,source)){
-        newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file['hits']);
+      if(source.startsWith("package:$_projectName")){
+        source = "lib" + source.replaceFirst("package:$_projectName", "");
+        newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
       }
     });
     

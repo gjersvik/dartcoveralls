@@ -11,6 +11,8 @@ cli(List<String> args){
     coveralls.addCoverage(JSON.decode(file.readAsStringSync()));
   });
   
+  print(coveralls.coverage);
+  
   coveralls.getPayload(result["repo_token"])
   .then(coveralls.upload)
   .then((Response response) {

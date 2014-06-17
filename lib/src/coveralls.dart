@@ -66,24 +66,32 @@ class Coveralls{
   }
   
   Future<Map> getPayload(){
-    var data = {"repo_token": repoToken,
-                "source_files": []
-    };
-    
+    return Future.wait([getSourceFiles(), getGitData()]).then((list){
+      return {
+        "repo_token": repoToken,
+        "source_files": list[0],
+        "git": list[1]
+      };
+    });
+  }
+  
+  Future<List> getSourceFiles(){
     var files = coverage.keys.map((file) => new File(Path.join(root,file)));
     var content = files.map((File f) =>f.readAsLines());
     return Future.wait(content).then((list){
       var source = new Map.fromIterables(coverage.keys,list.map((c) => c.join("\n")));
-      coverage.forEach((key,hits){
-        data["source_files"].add({
+      return coverage.keys.map((key){
+        return {
           "name" : key,
           "source" : source[key],
-          "coverage": hits
-        });
-      });
-      
-      return data;
+          "coverage": coverage[key]
+        };
+      }).toList();
     });
+  }
+  
+  Future<Map> getGitData(){
+    return Git.fromPath().then((git) => git.getData());
   }
   
   Future upload(){

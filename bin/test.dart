@@ -28,6 +28,16 @@ main(){
       data["head"]["committer_name"] = committer.group(1);
       data["head"]["committer_email"] = committer.group(2);
       data["head"]["message"] = c.message;
+      
+      return git.runCommand(["remote", "-v"]);
+    }).then((ProcessResult pro){
+      var reg = new RegExp(r"(\S+)\s(\S+)\s\(fetch\)");
+      reg.allMatches(pro.stdout).forEach((m){
+        data["remotes"].add({
+          "name": m.group(1),
+          "url": m.group(2)
+        });
+      });
     }).then((_){
       var json =  new  JsonEncoder.withIndent("  ");
       print(json.convert(data));

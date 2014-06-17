@@ -1,4 +1,5 @@
 import 'dart:async';
+import "dart:convert";
 import 'dart:io';
 import 'package:git/git.dart';
 import 'package:path/path.dart' as Path;
@@ -18,12 +19,19 @@ main(){
       
       return git.getCommit(b.sha);
     }).then((Commit c){
-      data["head"]["author_name"] = c.author;
-      data["head"]["author_email"] = c.author;
-      data["head"]["committer_name"] = c.committer;
-      data["head"]["committer_email"] = c.committer;
+      var reg = new RegExp(r"^([^<]+) <([^>]+)>");
+      var author = reg.firstMatch(c.author);
+      data["head"]["author_name"] = author.group(1);
+      data["head"]["author_email"] = author.group(2);
+      
+      var committer = reg.firstMatch(c.committer);
+      data["head"]["committer_name"] = committer.group(1);
+      data["head"]["committer_email"] = committer.group(2);
       data["head"]["message"] = c.message;
-    }).then((_) => print(data));
+    }).then((_){
+      var json =  new  JsonEncoder.withIndent("  ");
+      print(json.convert(data));
+    });
   });
 }
 

@@ -4,52 +4,48 @@ import 'dart:io';
 import 'package:git/git.dart';
 import 'package:path/path.dart' as Path;
 
-main(){
-  var data = {
-    "head": {},
-    "remotes": []
-  };
-  
-  getGit(Directory.current.path)
-  .then((GitDir git){
-    print(git.path);
-    git.getCurrentBranch().then((BranchReference b){
-      data["branch"] = b.branchName;
-      data["head"]["id"] = b.sha;
-      
-      return git.getCommit(b.sha);
-    }).then((Commit c){
-      var reg = new RegExp(r"^([^<]+) <([^>]+)>");
-      var author = reg.firstMatch(c.author);
-      data["head"]["author_name"] = author.group(1);
-      data["head"]["author_email"] = author.group(2);
-      
-      var committer = reg.firstMatch(c.committer);
-      data["head"]["committer_name"] = committer.group(1);
-      data["head"]["committer_email"] = committer.group(2);
-      data["head"]["message"] = c.message;
-      
-      return git.runCommand(["remote", "-v"]);
-    }).then((ProcessResult pro){
-      var reg = new RegExp(r"(\S+)\s(\S+)\s\(fetch\)");
-      reg.allMatches(pro.stdout).forEach((m){
-        data["remotes"].add({
-          "name": m.group(1),
-          "url": m.group(2)
-        });
-      });
-    }).then((_){
-      var json =  new  JsonEncoder.withIndent("  ");
-      print(json.convert(data));
-    });
+Future<Map> getGitData(String path) => getGit(path).then((GitDir git){
+  return git.getCurrentBranch().then((b) => Future.wait([
+    getGitHead(b.sha,git),
+    getGitRemotes(git)
+  ]).then((List list) => {
+    "branch": b.branchName,
+    "head": list[0],
+    "remotes": list[1]
+  }));
+});
+
+Future<Map> getGitHead(String sha, GitDir git){
+  return git.getCommit(sha).then((Commit c){
+    var reg = new RegExp(r"^([^<]+) <([^>]+)>");
+    var author = reg.firstMatch(c.author);
+    var committer = reg.firstMatch(c.committer);
+    
+    return {
+      "id": sha,
+      "author_name": author.group(1),
+      "author_email": author.group(2),
+      "committer_name": committer.group(1),
+      "committer_email": committer.group(2),
+      "message": c.message
+    };
+  });
+}
+
+Future<List> getGitRemotes(GitDir git){
+  return git.runCommand(["remote", "-v"]).then((pro){
+    var reg = new RegExp(r"(\S+)\s(\S+)\s\(fetch\)");
+    return reg.allMatches(pro.stdout).map((m){
+      return {
+        "name": m.group(1),
+        "url": m.group(2)
+      };
+    }).toList();
   });
 }
 
 Future<GitDir> getGit(String path){
-  print('getGit($path)');
-  
   Future<GitDir> subget(String path) => GitDir.fromExisting(path).catchError((e){
-    print('subget($path)');
     var list = Path.split(path);
     list.removeLast();
     return subget(Path.joinAll(list));
@@ -60,4 +56,11 @@ Future<GitDir> getGit(String path){
       return new Future.error('Git directory not found');
     }
   }).then((_) => subget(path));
+}
+
+main(){
+  getGitData(Directory.current.path).then((data){
+    var json = new  JsonEncoder.withIndent("  ");
+    print(json.convert(data));
+  });
 }

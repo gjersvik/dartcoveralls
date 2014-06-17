@@ -11,8 +11,8 @@ class Coveralls{
   Coveralls(String root,{this.repoToken:'',
                          this.serviceToken:'',
                          this.serviceJobId:''}){
-    _root = path.normalize(path.absolute(root));
-    var pubspec = new File(path.join(root,'pubspec.yaml')).readAsStringSync();
+    _root = Path.normalize(Path.absolute(root));
+    var pubspec = new File(Path.join(root,'pubspec.yaml')).readAsStringSync();
     _projectName = loadYaml(pubspec)['name'];
   }
   
@@ -21,7 +21,7 @@ class Coveralls{
   Map<String,List<int>> coverage = {};
   
   Future addFile(file){
-    return new File(path.join(root, file)).readAsString()
+    return new File(Path.join(root, file)).readAsString()
       .then(JSON.decode)
       .then(addData);
   }
@@ -31,14 +31,14 @@ class Coveralls{
     data['coverage'].forEach((Map file){
       String source = file['source'];
       if(source.startsWith('file://')){
-        source = path.fromUri(source);
-        if(path.isWithin(root,source)){
-          newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
+        source = Path.fromUri(source);
+        if(Path.isWithin(root,source)){
+          newCoverage[Path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
         }
       }
       if(source.startsWith("package:$_projectName")){
         source = "lib" + source.replaceFirst("package:$_projectName", "");
-        newCoverage[path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
+        newCoverage[Path.relative(source,from: root)] = _toCoverallLineFormat(file["hits"]);
       }
     });
     
@@ -70,7 +70,7 @@ class Coveralls{
                 "source_files": []
     };
     
-    var files = coverage.keys.map((file) => new File(path.join(root,file)));
+    var files = coverage.keys.map((file) => new File(Path.join(root,file)));
     var content = files.map((File f) =>f.readAsLines());
     return Future.wait(content).then((list){
       var source = new Map.fromIterables(coverage.keys,list.map((c) => c.join("\n")));

@@ -1,8 +1,4 @@
-import 'dart:async';
-import "dart:convert";
-import 'dart:io';
-import 'package:git/git.dart';
-import 'package:path/path.dart' as Path;
+part of dartcoveralls;
 
 Future<Map> getGitData(String path) => getGit(path).then((GitDir git){
   return git.getCurrentBranch().then((b) => Future.wait([
